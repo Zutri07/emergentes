@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>EZPAY</title>
+
+    <!-- Required Stylesheets -->
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"
+    />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
+    />
+
+    <!-- Required scripts -->
+    <script src="//cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+  </head>
+  <body>
+    <!-- Our application root element -->
+    <!-- <div id="app">
+      <b-container>
+        <b-jumbotron header="BLOGS" lead="Demo de consumo de servicios con Vue2 y BootstrapVue">
+          <p>Para más información consulta:</p>
+          <b-btn variant="primary" href="https://bootstrap-vue.js.org/">¡ Quiero saber más de BootstrapVue !</b-btn>
+        </b-jumbotron>
+
+        <b-form-group horizontal :label-cols="4" label="Dime tu nombre">
+          <b-form-input v-model.trim="name"></b-form-input>
+        </b-form-group>
+
+        <b-alert variant="error" :show="showAlert">
+           ¡Bienvenido {{ name }}!
+           <b-button @click="createUser" size="sm">Crear Usuario</b-button>
+        </b-alert>
+        <b-alert show variant="warning">Warning Alert</b-alert>
+        <b-table responsive :items="posts">
+          <template #cell(author)="data">
+             {{ data.value.name }}
+          </template>
+        </b-table>
+      
+        <b-form-group v-if="name.length > 2" horizontal :label-cols="4" label="Dime un tema">
+          <b-form-input v-model.trim="query" placeholder="... por ejemplo moto" 
+                        @keyup.enter="searchBlogs">
+          </b-form-input>
+        </b-form-group>
+
+      <div v-if="blogs.length>0">
+        <b-card>
+       		<ul>
+        	   <p v-for="blog in blogs">
+                <b-button @click="getPosts(blog.title)">{{blog.title}}</b-button> by {{blog.creator.name}}
+             </p>
+      		</ul>
+        </b-card>
+      </div>
+      <b-card v-else variant="warning">No hay resultados</b-card>
+      
+      <b-card v-if="blogId.length > 0">
+          
+        <p v-if="posts.length==0"> Aún no hay mensajes</p>
+
+          <b-table responsive :items="posts">
+            <template #cell(author)="data">
+               {{ data.value.name }}
+            </template>
+          </b-table>
+
+          <b-form-group>
+             <b-form-input v-model.trim="post" placeholder="Nuevo comentario" 
+                           @keyup.enter="addPost">
+             </b-form-input>
+
+      </b-card>
+
+
+      </b-container> -->
+      <div id="app">
+      <h1>EZPAY</h1>
+
+      <div>
+        <h3>Usuarios</h3>
+        <b-btn href="./users/userPortal.html">Clientes</b-btn>
+      </div>
+
+      <div>
+        <h3>Restaurantes</h3>
+        <b-btn href="./restaurants/restaurantPortal.html">Restaurantes</b-btn>
+      </div>
+
+      <div>
+        <h3>Trabajadores</h3>
+        <b-btn href="./employers/employerPortal.html">Empleados</b-btn>
+      </div>
+
+      <div>
+        <h3>Plato</h3>
+        <b-btn href="./dishes/dishPortal.html">Platos</b-btn>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- Start running your app -->
+    <script>
+      window.app  = new Vue({
+        el: '#app',
+        data: {
+          // name:   '', //nombre de usuario (no se usa)
+          // query:  '', //búsqueda
+          // blogId: '', //blog activado
+
+          idUser: 1,
+          idRestaurant: 1,
+          nameRestaurant: "Restaurante1",
+          idEmployer: 1,
+          idDish:1,
+          data:  [], //users de la búsqueda
+          restaurants:  [], //posts del blog activado
+          employers:  [],
+          dishes:  [],
+
+          // post:   '',  //nuevo post
+          // postId:  0
+
+          error: false
+        },
+        computed: {
+          // showAlert() {
+          //   return this.name.length > 2 ? true : false
+          // }
+        },
+        methods:{
+
+          searchUsers(){
+            this.data=[]
+            var self = this
+            var gQL = `query{getUsers{id, name, surnames, email,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              self.data = json.data.getUsers
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchRestaurants(){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getRestaurants{id, name, location,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              self.data = json.data.getRestaurants
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchEmployerss(){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getEmployers{id, name}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              self.data = json.data.getEmployers
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchDishes(){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getDishes{id, name, price}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              self.data = json.data.getDishes
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchUser(id){
+            this.data=[]
+            var self = this
+            var gQL = `query{getUser(id:${id}){id, name, surnames, email,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getUser!=null)
+              self.data.push( json.data.getUser)
+            })
+            .catch(function(error){console.log(error)})
+          },
+            searchRestaurant(id){
+              this.data=[]
+            var self = this
+            var gQL = `query{getRestaurant(id:${id}){id, name, location,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getRestaurant!=null)
+              self.data.push( json.data.getRestaurant)
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchRestaurantByName(name){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getRestaurantByName(name:"${name}"){id, name, location,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getRestaurantByName!=null)
+              self.data.push( json.data.getRestaurantByName)
+            })
+            .catch(function(error){console.log(error)})
+          },
+          searchEmployers(id){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getEmployer(id:${id}){id, name, restaurant {id}}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getEmployer!=null)
+              self.data.push( json.data.getEmployer)
+            })
+            
+            .catch(function(error){console.log(error)})
+          },
+          searchDish(id){
+            this.data=[]
+
+            var self = this
+            var gQL = `query{getDish(id:${id}){id, name, price}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getDish!=null)
+              self.data.push( json.data.getDish)
+            })
+            .catch(function(error){console.log(error)})
+          },
+
+
+
+
+          ///////////////////////////////////////////
+          // searchBlogs(){
+          //   var self = this
+          //   var gQL = `query{searchBlog(q:"${this.query}"){title creator{name}}}`
+            
+          //   fetch('/graphql?query=' + encodeURIComponent(gQL))
+          //   .then(function(r){return r.json()})
+          //   .then(function(json){
+          //     self.blogs = json.data.searchBlog
+          //   })
+          //   .catch(function(error){console.log(error)})
+          // },
+          // getPosts(blogId){
+          //   var self = this
+            
+          //   this.blogId = blogId
+
+          //   var gQL = `query{posts(blogId:"${this.blogId}"){title content author{name}}}`
+          //   console.log(gQL)
+          //   fetch('/graphql?query=' + encodeURIComponent(gQL))
+          //   .then(function(r){return r.json()})
+          //   .then(function(json){
+          //     self.posts = json.data.posts
+          //   })
+          //   .catch(function(error){console.log(error)})
+          // },
+          // addPost(){
+          //   var self = this
+            
+          //   if (this.post.trim().length ==0 ) return false
+
+          //   this.postId++
+            
+          //   var gQL = `mutation{addPost(blogId:"${this.blogId}", 
+          //                               title: "Prueba ${this.name} ${this.postId}", 
+          //                               content: "${this.post}", 
+          //                               authorId: "user0")
+          //                       {title}}`
+            
+          //   console.log(gQL)
+          //   fetch('/graphql', { 
+          //           method: 'POST',
+          //           headers: {'Content-Type': 'application/json'},
+          //           body: JSON.stringify({ query: gQL })
+          //   })
+          //   .then(function(r){return r.json()})
+          //   .then(function(json){console.log(json)})
+          //   .catch(function(error){console.log(error)})           
+          // },
+          // createUser(){
+          //   var self = this
+          //   var gQluser = `mutation{addUser(name:"${this.name}"){name}}`
+          //   console.log(gQluser)
+          //   fetch('/graphql',{
+          //     method:'POST',
+          //     headers: {'Content-Type': 'application/json'},
+          //     body: JSON.stringify({ query: gQluser })
+          //   })
+          //   .then((r)=>r.json)
+          //   .then((json)=>console.log(json))
+          //   .catch((error)=>console.log(error))
+          //   //TO BE COMPLETED
+          // },
+          // getUsers(){
+          //   var self=this
+          //   var gQlUsers = `query{users}`
+          //   fetch('/graphql?query=' + encodeURIComponent(gQlUsers))
+          //   .then(function(r){return r.json()})
+          //   .then(function(json){
+          //     self.posts = json.data.posts
+          //   })
+          // },
+          // getUserByName(name){
+          //   var self=this
+          //   this.name = name
+
+          //   var gQL = `query{getUsers(name:"${this.name}")}`
+          //   console.log(gQL)
+          //   fetch('/graphql?query=' + encodeURIComponent(gQL))
+          //   .then(function(r){return r.json()})
+          //   .then(function(json){
+          //     self.posts = json.data.posts
+          //   })
+          //   .catch(function(error){console.log(error)})
+          // }
+        },
+        notificarError(){
+          this.error= true
+        },
+        mounted(){
+          var self = this
+          var ES = new EventSource('/news') //ruta API con notificaciones
+          this.data = this.searchUsers()
+
+          console.log('Creando listener de eventos de servidor...')
+
+          // ES.addEventListener('new-user', function(event){
+          //   var data = JSON.parse(JSON.parse(event.data)) 
+          //   //bytes to string -> string to json
+          //   if (data.blog.title == self.blogId)
+          //       self.posts.push(data)
+          // }, false)
+
+          ES.addEventListener('new-user', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.data.push(data)
+          }, false)
+          ES.addEventListener('new-restaurant', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.data.push(data)
+          }, false)
+          ES.addEventListener('new-employer', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.data.push(data)
+          }, false)
+          ES.addEventListener('new-dish', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.data.push(data)
+          }, false)
+
+          ES.addEventListener('error-user', function(event){
+            var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.data.push(data)
+            notificarError()
+          }, false)
+        }
+      })
+    </script>
+  </body>
+</html>

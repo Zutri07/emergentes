@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+  <title>EZPAY</title>
+
+  <!-- Required Stylesheets -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+
+  <!-- Required scripts -->
+  <script src="//cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+  <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>
+      <h3>Empleados</h3>
+      <b-btn href="../index.html">Atrás</b-btn>
+      
+      <b-btn href="./asignEmployer.html">Asignar empleados</b-btn>
+      
+      <b-btn variant="primary" @click="searchEmployers">Listar empleados</b-btn>
+
+      <b-form-group id="input-group-2" label="Elige empleado:" label-for="input-2" style="width: 20%;">
+        <b-form-input
+          id="input-2"
+          v-model="idEmployer"
+          placeholder="id"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <b-btn variant="primary" @click="searchEmployer(idEmployer)">Buscar empleado</b-btn>
+      
+              
+      <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+  
+        <b-form-group id="input-group-2" label="Name:" label-for="input-2">
+            <b-form-input
+              id="input-2"
+              v-model="form.name"
+              placeholder="Enter name (required)"
+              required
+            ></b-form-input>
+          </b-form-group>
+    
+    
+          <b-form-group id="input-group-3" label="RestaurantId:" label-for="input-3">
+            <b-form-input
+              id="input-3"
+              v-model="form.RestaurantId"
+              placeholder="Enter Restaurant id"
+            ></b-form-input>
+          </b-form-group>
+
+          <b-form-group id="input-group-3" label="Password:" label-for="input-3">
+            <b-form-input
+              id="input-3"
+              v-model="form.passwd"
+              placeholder="Enter Password (default: passwd)"
+            ></b-form-input>
+          </b-form-group>
+  
+        <b-button type="submit" variant="primary">Submit</b-button>
+        <b-button type="reset" variant="danger">Reset</b-button>
+      </b-form>
+
+
+      
+        
+        </b-form>
+
+    <!-- <b-card class="mt-3" header="Form Data Result">
+      <pre class="m-0">{{form}}</pre>
+    </b-card> -->
+    <b-table striped hover :items="employers"></b-table>
+
+  </div>
+
+  <script>
+      window.app  = new Vue({
+        el: '#app',
+      data: {
+         
+        form: {
+            id: 0,
+            RestaurantId: '',
+            name: '',
+            passwd: ''
+        },
+          show: true,
+          employers:[],
+          idEmployer: 1,
+
+        }
+      ,
+      methods: {
+        onSubmit(event) {
+          console.log("submit")
+          this.addEmployer()
+          event.preventDefault()
+          alert(JSON.stringify(this.form))
+        },
+
+        onReset(event) {
+            event.preventDefault()
+            // Reset our form values
+            this.form.id= 0
+            this.form.RestaurantId = ''
+            this.form.name = ''
+            this.form.passwd= ''
+
+            // Trick to reset/clear native browser form validation state
+            this.show = false
+            this.$nextTick(() => {
+                this.show = true
+            })
+        },
+        addEmployer() {
+          var self = this
+        //   Arreglar la llamada con el vector 
+        console.log("entra a")
+          var gQL = `mutation{addEmployer(name:"${this.form.name}", restaurantId:"${this.form.RestaurantId}", passwd:"${this.form.passwd}"){_id, name}}`
+          fetch('/graphql?', { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ query: gQL })
+            })
+            .then(function (r) { console.log("fetch"); return r.json() })
+            .then(function (json) {
+              console.log(json)
+            })
+            .catch(function (error) { console.log(error) })
+        },
+    
+        searchEmployers(){
+            this.employers=[]
+
+            var self = this
+            var gQL = `query{getEmployers{_id, name}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+                self.employers = json.data.getEmployers
+            })
+            .catch(function(error){console.log(error)})
+        },
+        searchEmployer(id){
+            this.employers=[]
+
+            var self = this
+            var gQL = `query{getEmployer(_id:"${this.idEmployer}"){_id, name, restaurant {_id}}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getEmployer!=null)
+              self.employers.push( json.data.getEmployer)
+            })
+            
+            .catch(function(error){console.log(error)})
+          },
+      },
+    mounted(){
+          var self = this
+          var ES = new EventSource('/news') //ruta API con notificaciones
+          this.dishes = this.searchEmployers()
+
+          console.log('Creando listener de eventos de servidor...')
+
+    
+
+          ES.addEventListener('new-employer', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.employers.push(data)
+          }, false)}
+    })
+    
+  </script>
+</body>
+
+</html>

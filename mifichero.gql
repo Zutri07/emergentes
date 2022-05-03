@@ -1,0 +1,3 @@
+const fs = require('fs ')
+let gql = fs.readFileSync('mifichero.gql ').toString()
+const schema = buildSchema(gql)

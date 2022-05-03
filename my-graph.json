@@ -1,0 +1,63 @@
+{
+    "@context": "https://schema.org/",
+    "@type": "WebAPI",
+    "@id":"localhost:graphql",
+    "name": "EASYPAY",
+    "description": "Servicio API para la consulta de información de la aplicación de EASYPAY por parte de los usuarios.",
+    "documentation": "https://developers.google.com/knowledge-graph/",
+    "termsOfService": "https://developers.google.com/knowledge-graph/terms",
+    
+  "Organization":{"@type": "Organization",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Castellón de la Plana, Castellón",
+      "postalCode": "12006",
+      "streetAddress": "38 avenue de l'Opera",
+      "legalName": "EASYPAY SL",
+      "numberOfEmployees":2
+    },
+    "email": "easypay@uji.es",
+    "Contact": "( 33 1) 42 68 53 01",
+     "name": "EASYPAY (EZPAY)",
+    "telephone": "( 33 1) 42 68 53 00",
+       
+  "member1": {
+    "@type": "Person",
+    "email": "al339209@uji.es",
+    "jobTitle": "Matematicas Computacionales y Ingeniería Informática",
+    "name": "Antonio Castelló",
+    "telephone": "(425) 123-4567" ,
+    "url":"https://aulavirtual.uji.es/user/profile.php?id=98391"
+  },
+  
+   "member2": {
+    "@type": "Person",
+    "email": "386130@uji.es",
+    "jobTitle": "Ingeniería Informática",
+    "name": "Jorge Sánchez",
+    "telephone": "(425) 123-4568",
+    "url": "https://aulavirtual.uji.es/user/profile.php?id=150607"
+  }
+  },
+  "Service": {
+  "@type": "Service",
+    "name": "EASYPAY",
+    "description": "Una nueva manera de pago para los grupos de personas en los restaurantes.",
+    "datePosted": "2022-04-22T08:00"
+        },
+    
+    "offer":{
+      "@type": "Product",
+      "description": "Aplicación de móvil para pago en restaurantes.",
+      "name": "EZPAY",
+      "price":"gratuita",
+      "availability": "IOS-android"
+    },
+   "audience": {
+        "@type": "Audience",
+        "name": "Restaurantes y otros comercios de ocio",
+        "description" : "Locales donde acudan grupos de gente númerosos",
+        "utility" : "Agilizar la forma de pago de estos comercios"
+       }
+  }
+  

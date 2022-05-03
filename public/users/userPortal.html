@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+  <title>EZPAY</title>
+
+  <!-- Required Stylesheets -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+
+  <!-- Required scripts -->
+  <script src="//cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+  <script src="//unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div>
+        <h3>Usuarios</h3>
+        <b-btn href="../index.html">Atrás</b-btn>
+    </br>
+        <b-btn variant="primary" @click="searchUsers">Listar usuarios</b-btn>
+    </br>
+        <b-form-group id="input-group-2" label="Elige usuario:" label-for="input-2" style="width: 20%;">
+          <b-form-input
+            id="input-2"
+            v-model="idUser"
+            placeholder="id"
+            required
+          ></b-form-input>
+        </b-form-group>
+        <b-btn variant="primary" @click="searchUser(idUser)">Buscar usuario</b-btn>
+      </div>
+    </br>
+    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+      <!-- <b-form-group id="input-group-1" label="id:" label-for="id">
+        <b-form-input id="input-1" v-model="form.id" type="number" placeholder="Enter id (required)" required>
+        </b-form-input>
+      </b-form-group> -->
+
+      <b-form-group id="input-group-2" label="Name:" label-for="input-2">
+        <b-form-input id="input-2" v-model="form.name" placeholder="Enter name (required)" required></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-3" label="surnames:" label-for="input-3">
+        <b-form-input id="input-3" v-model="form.surnames" placeholder="Enter surnames " required></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-7" label="Age:" label-for="input-7">
+        <b-form-input id="input-7" v-model="form.age" type="number" placeholder="Enter age"></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-4" label="email:" label-for="input-4">
+        <b-form-input id="input-4" v-model="form.email"  placeholder="Enter email"></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-5" label="pasword:" label-for="input-5">
+        <b-form-input id="input-5" v-model="form.passwd" type="password" placeholder="Enter password"></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-6" label="rol:" label-for="input-6">
+        <b-form-input id="input-6" v-model="form.rol" placeholder="Enter rol"></b-form-input>
+      </b-form-group>
+
+      <b-button type="submit" variant="primary">Submit</b-button>
+      <b-button type="reset" variant="danger">Reset</b-button>
+    </b-form>
+    <!-- <b-card class="mt-3" header="Form Data Result">
+      <pre class="m-0">{{form}}</pre>
+    </b-card> -->
+    <b-table striped hover :items="users"></b-table>
+
+  </div>
+
+  <script>
+      window.app  = new Vue({
+        el: '#app',
+      data: {
+         
+          form: {
+            id: 0,
+            email: '',
+            name: '',
+            surnames: '',
+            passwd: '',
+            age: 0,
+            rol: '',
+          },
+          show: true,
+          users:[],
+          idUser: 1,
+
+        }
+      ,
+      methods: {
+        onSubmit(event) {
+          this.addUser()
+          event.preventDefault()
+          alert(JSON.stringify(this.form))
+        },
+
+        onReset(event) {
+          event.preventDefault()
+          // Reset our form values
+          this.form.id = 0
+          this.form.email = ''
+          this.form.name = ''
+          this.form.surnames = ''
+          this.form.passwd = ''
+          this.form.age = 0
+          this.form.rol = ''
+
+
+          // Trick to reset/clear native browser form validation state
+          this.show = false
+          this.$nextTick(() => {
+            this.show = true
+          })
+        },
+        addUser() {
+          var self = this
+          var gQL = `mutation{addUser(name:"${this.form.name}", email:"${this.form.email}", surnames:"${this.form.surnames}", passwd: "${this.form.passwd}", age: ${this.form.age}, rol: "${this.form.rol}"){_id, name, surnames, email}}`
+          fetch('/graphql?', { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ query: gQL })
+            })
+            .then(function (r) { console.log("fetch"); return r.json() })
+            .then(function (json) {
+              console.log(json)
+            })
+            .catch(function (error) { console.log(error) })
+        },
+        searchUsers(){
+            this.users=[]
+            var self = this
+            var gQL = `query{getUsers{_id, name, surnames, email,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              self.users = json.data.getUsers
+            })
+            .catch(function(error){console.log(error)})
+          },
+        searchUser(id){
+            this.users=[]
+            var self = this
+            var gQL = `query{getUser(_id:"${id}"){_id, name, surnames, email,}}`
+            
+            fetch('/graphql?query=' + encodeURIComponent(gQL))
+            .then(function(r){return r.json()})
+            .then(function(json){
+              if(json.data.getUser!=null)
+              self.users.push( json.data.getUser)
+            })
+            .catch(function(error){console.log(error)})
+          },
+      },
+    mounted(){
+          var self = this
+          var ES = new EventSource('/news') //ruta API con notificaciones
+          this.users = this.searchUsers()
+
+          console.log('Creando listener de eventos de servidor...')
+
+    
+
+          ES.addEventListener('new-user', function(event){
+          var data = JSON.parse(JSON.parse(event.data)) 
+            //bytes to string -> string to json
+            self.users.push(data)
+          }, false)}
+    })
+    
+  </script>
+</body>
+
+</html>
